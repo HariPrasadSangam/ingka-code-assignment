@@ -28,7 +28,7 @@ import org.jboss.logging.Logger;
 @Consumes("application/json")
 public class StoreResource {
 
-  @Inject Event<StoreEvent> storeChangedEvent;
+  @Inject Event<StoreEvent> storeEvent;
 
   private static final Logger LOGGER = Logger.getLogger(StoreResource.class.getName());
 
@@ -57,7 +57,7 @@ public class StoreResource {
 
     store.persist();
     LOGGER.debugf("Create store, firing event to call legacy system: %s", store.name);
-    storeChangedEvent.fire(new StoreEvent(store, StoreEvent.Operation.CREATE));
+    storeEvent.fire(new StoreEvent(store, StoreEvent.Operation.CREATE));
 
     return Response.ok(store).status(201).build();
   }
@@ -81,7 +81,7 @@ public class StoreResource {
     entity.quantityProductsInStock = updatedStore.quantityProductsInStock;
 
     LOGGER.debugf("Update store, firing event to call legacy system: %s", updatedStore.name);
-    storeChangedEvent.fire(new StoreEvent(entity, StoreEvent.Operation.UPDATE));
+    storeEvent.fire(new StoreEvent(entity, StoreEvent.Operation.UPDATE));
 
     return entity;
   }
@@ -109,7 +109,7 @@ public class StoreResource {
       entity.quantityProductsInStock = updatedStore.quantityProductsInStock;
     }
     LOGGER.debugf("Patch store, firing event to call legacy system: %s", updatedStore.name);
-    storeChangedEvent.fire(new StoreEvent(entity, StoreEvent.Operation.UPDATE));
+    storeEvent.fire(new StoreEvent(entity, StoreEvent.Operation.UPDATE));
 
     return entity;
   }
@@ -124,7 +124,7 @@ public class StoreResource {
       throw new WebApplicationException("Store with id of " + id + " does not exist.", 404);
     }
     LOGGER.debugf("Delete store, firing event to call legacy system");
-    storeChangedEvent.fire(new StoreEvent(entity, StoreEvent.Operation.DELETE));
+    storeEvent.fire(new StoreEvent(entity, StoreEvent.Operation.DELETE));
     entity.delete();
     return Response.status(204).build();
   }
