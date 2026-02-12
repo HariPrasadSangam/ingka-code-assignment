@@ -7,20 +7,13 @@
 
 **Questions you may have and considerations:**
 
-**Key Challenges** :
-**Complex Cost Drivers**: Multiple cost categories (labor, inventory, transportation, overhead) with different allocation bases
-**Variable vs Fixed Costs**: Distinguishing between costs that scale with volume vs. static operational costs
-**Cross-functional Dependencies**: Costs shared between warehouses and stores requiring fair allocation methodologies
+Accurately tracking costs across warehouses and stores is challenging due to shared resources (labor, space) that need fair apportionment, real-time data from multiple systems (WMS, TMS, payroll) with different SLAs, and retroactive adjustments from returns/chargebacks. 
+**Key considerations** Choosing an allocation model (activity-based vs. volume-based), ensuring idempotent event-driven cost accrual, and using BigDecimal for precision. From experience, applying event sourcing and strategy patterns for pluggable allocation rules works well. 
 
-**Important Considerations**:
-
-**Activity-Based Costing (ABC)**: Allocate costs based on actual activities consumed rather than simple averages
-**Cost Pools**: Group similar costs together for more accurate allocation (e.g., all receiving costs, all picking costs)
-
-**Questions to Clarify**:
-
-What is the required frequency for cost allocation reporting (daily, weekly, monthly)?
-How should shared services costs (IT, HR, finance) be allocated across locations?
+**Critical questions**: 
+Who consumes this data? 
+What's the reconciliation frequency? 
+How do we handle split shipments across warehouses?
 
 
 ## Scenario 2: Cost Optimization Strategies
@@ -30,35 +23,17 @@ How should shared services costs (IT, HR, finance) be allocated across locations
 
 **Questions you may have and considerations:**
 
-**Potential Cost Optimization Strategies:**
+To identify optimization opportunities, I'd start by analyzing cost drivers (labor, transport, inventory holding) through data profiling and pinpointing the highest-spend areas. 
+**Key strategies** Inventory placement optimization (stocking closer to demand to reduce shipping costs), labor scheduling based on demand forecasting, carrier rate negotiation 
+with multi-carrier routing, and batch processing for picks/packs to improve throughput. Prioritization should follow effort vs. impact matrix — quick wins like route optimization first, 
+then structural changes like warehouse automation. Implementation should be incremental with A/B testing to measure impact without risking service quality. 
 
-1. **Transportation Optimization**: Route optimization and load consolidation
+**Expected outcomes**: 15-25% reduction in transport costs, improved labor utilization, and faster fulfillment cycles while maintaining SLAs
 
-2. **Inventory Management**: Safety stock optimization based on demand variability
-
-3. **Labor Productivity**: Workforce management, scheduling optimization and Automation opportunities for repetitive tasks
-
-4. **Warehouse Operations**: Slotting optimization for reduced travel time, Energy efficiency and facility utilization and Identification and Prioritization Process:
-
-**Expected Outcomes**:
-
-Short-term: 5-15% cost reduction through operational efficiencies
-Medium-term: 15-25% reduction through process redesign and technology
-Long-term: 25%+ reduction through network optimization and automation
-
-**Implementation Considerations**:
-
-Pilot programs to validate assumptions before full rollout
-Change management and employee training
-Continuous monitoring and adjustment of strategies
-Integration with existing systems and processes
-
-**Questions to Clarify**:
-
-What are the current cost benchmarks and industry standards?
-What is the company's risk tolerance for service level impacts?
-What budget is available for optimization initiatives?
-
+**Critical questions**:
+What are the current biggest cost drivers — is it labor, transportation, or inventory holding costs?
+Do we have baseline metrics/KPIs (cost-per-order, cost-per-unit) to measure optimization impact against?
+What are the non-negotiable SLAs — same-day delivery, accuracy rates — that we cannot compromise?
 
 ## Scenario 3: Integration with Financial Systems
 **Situation**: The Cost Control Tool needs to integrate with existing financial systems to ensure accurate and timely cost data. The integration should support real-time data synchronization and reporting.
@@ -66,32 +41,15 @@ What budget is available for optimization initiatives?
 **Task**: Discuss the importance of integrating the Cost Control Tool with financial systems. What benefits the company would have from that and how would you ensure seamless integration and data synchronization?
 
 **Questions you may have and considerations:**
- 
-**Importance of Financial System Integration**:
 
-Benefits:
+Integrating the Cost Control Tool with financial systems ensures single source of truth for cost data, eliminates manual reconciliation errors, and enables real-time financial visibility for decision-making. 
+Benefits include automated cost posting to GL, faster month-end closing, and accurate P&L per warehouse/store. For seamless integration, I'd use event-driven architecture with APIs (REST/Kafka) for real-time sync, 
+implement idempotent transactions to handle failures, and establish data validation/reconciliation jobs to catch discrepancies. 
 
-Real-time Visibility: Immediate access to cost data for decision-making
-Data Consistency: Single source of truth eliminates reconciliation issues
-Automated Reporting: Streamlined financial reporting and compliance
-Improved Accuracy: Reduced manual data entry errors and delays
-Better Forecasting: Historical cost data enables more accurate predictions
-
-Ensuring Seamless Integration:
-
-**Technical Considerations**:
-
-API Architecture: RESTful APIs for secure, scalable data exchange
-Data Validation: Business rules to ensure data quality and consistency
-Error Handling: Robust exception management and retry mechanisms
-
-**Data Governance**: Clear data ownership, Data quality standards and validation rules 
-
-**Questions to Clarify**:
-
-What financial systems are currently in use (ERP, GL, reporting tools)?
-What is the required frequency for data synchronization?
-What are the data format and protocol requirements?
+**Key questions**: 
+What financial systems exist (SAP, Oracle)? 
+What's the data format and frequency — real-time or batch? 
+Who owns the master data — Cost Tool or financial system? Are there compliance requirements (SOX) affecting how data flows
 
 ## Scenario 4: Budgeting and Forecasting
 **Situation**: The company needs to develop budgeting and forecasting capabilities for its fulfillment operations. The goal is to predict future costs and allocate resources effectively.
@@ -99,28 +57,17 @@ What are the data format and protocol requirements?
 **Task**: Discuss the importance of budgeting and forecasting in fulfillment operations and what would you take into account designing a system to support accurate budgeting and forecasting?
 
 **Questions you may have and considerations:**
-**Importance of Budgeting and Forecasting**:
 
-**Strategic Benefits**:
+Budgeting and forecasting are critical for proactive cost management — predicting labor needs, inventory investments, and transport spend before they become problems. When designing this system, 
+I'd account for seasonality patterns (peak seasons, promotions), historical cost trends, and external factors (fuel prices, carrier rate changes) as key inputs. The system should support rolling 
+forecasts over fixed annual budgets for agility, with variance analysis comparing actual vs. predicted to continuously improve accuracy. Technically, I'd leverage time-series data models, 
+integrate with existing cost tracking and financial systems, and provide scenario modeling (best/worst/expected case). 
 
-Resource Allocation: Optimize distribution of capital and operational resources
-Performance Management: Establish benchmarks and variance analysis
-
-**System Design Considerations**:
-
-1. Data Foundation: Historical cost data with appropriate seasonality adjustments
-2. Forecasting Methodology:
-   Time Series Analysis: Trend, seasonal, and cyclical components
-   Scenario Planning: Best case, worst case, and most likely scenarios
-3. Budget Management:
-   Bottom-up Budgeting: Department-level input with top-down validation
-   Flexible Budgeting: Adjust for volume and activity variations
-
-**Key Design Elements**:
-
-Scalability: Handle multiple locations, products, and time periods
-Flexibility: Accommodate different business models and cost structures
-User Experience: Intuitive interfaces for non-finance users
+**Key questions**: 
+What's the forecasting horizon — monthly, quarterly? 
+Do we have enough historical data to build reliable models? 
+Who are the consumers — finance, operations, or both? 
+How do we handle unexpected events like supply chain disruptions?
 
 ## Scenario 5: Cost Control in Warehouse Replacement
 **Situation**: The company is planning to replace an existing Warehouse with a new one. The new Warehouse will reuse the Business Unit Code of the old Warehouse. The old Warehouse will be archived, but its cost history must be preserved.
@@ -129,52 +76,15 @@ User Experience: Intuitive interfaces for non-finance users
 
 **Questions you may have and considerations:**
 
-**Cost Control Importance in Warehouse Replacement**:
+Preserving cost history is critical for benchmarking the new warehouse's performance against the old one, ensuring budget targets are realistic and grounded in actual data. Since the Business Unit Code is reused, the system must logically 
+separate old vs. new warehouse cost records (e.g., versioning or effective dating) to avoid data contamination while maintaining reporting continuity. Cost control during replacement involves tracking transition costs (migration, parallel 
+operations, ramp-up inefficiencies) as a separate category to avoid skewing ongoing operational budgets. The archived warehouse data serves compliance, audit trails, and trend analysis for future planning. 
 
-**Why Preserve Cost History**:
-
-Performance Benchmarking: Historical data provides baseline for new warehouse performance
-Trend Analysis: Identify seasonal patterns and cost trends for the business unit
-Budget Validation: Compare new warehouse costs against historical averages
-
-**Budget Control Considerations**:
-
-1. **Cost Baseline Establishment**:
-
-Extract historical cost patterns from the archived warehouse
-Adjust for inflation, market changes, and operational differences
-
-2. **Transition Cost Management**:
-
-Dual Operations: Costs during overlap period when both warehouses operate
-Migration Expenses: System integration, equipment transfer, and relocation costs
-
-3. **Performance Monitoring**:
-
-Early Warning Systems: Identify cost overruns quickly in the new facility
-Variance Analysis: Compare actual costs against historical benchmarks
-
-4. **Business Unit Code Continuity**:
-
-Cost Attribution: Maintain clear linkage between historical and current costs
-Reporting Consistency: Ensure financial reports show continuous cost tracking
-
-**Implementation Challenges:**
-
-Data Migration: Ensuring accurate transfer of cost data and allocation rules
-System Integration: Updating all systems to recognize the new warehouse
-
-**Key Success Factors**:
-
-Comprehensive Planning: Detailed cost transition plan with clear timelines
-Stakeholder Communication: Regular updates on cost performance during transition
-
-**Questions to Clarify**:
-
-What is the expected timeline for the warehouse replacement process?
-How will dual operation costs be handled during the transition period?
-What cost variances are acceptable between the old and new warehouses?
-
+**Key questions**: 
+What's the transition period where both warehouses operate simultaneously? 
+How do we handle in-flight orders and their cost attribution during cutover? 
+Should historical reports reflect the old warehouse separately or merged under the same Business Unit Code? 
+What retention policies apply to archived cost data?
 
 
 ## Instructions for Candidates

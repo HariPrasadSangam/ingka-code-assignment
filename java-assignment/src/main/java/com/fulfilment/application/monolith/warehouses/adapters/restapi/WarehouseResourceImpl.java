@@ -11,6 +11,7 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.WebApplicationException;
+import org.apache.commons.lang3.StringUtils;
 import org.jboss.logging.Logger;
 
 import java.util.List;
@@ -46,14 +47,14 @@ public class WarehouseResourceImpl implements WarehouseResource {
   @Override
   public Warehouse getAWarehouseUnitByID(String id) {
     LOGGER.infof("Getting warehouse unit by ID: %s", id);
-
-    String code = requireNonBlank(id, "Warehouse id was not set.");
+    if (StringUtils.isEmpty(id)) {
+      throw new IllegalArgumentException("Warehouse Id cannot be empty");
+    }
     Long warehouseId = Long.parseLong(id);
     var warehouse = warehouseRepository.findWarehouseById(warehouseId);
     if (warehouse == null || warehouse.archivedAt != null) {
       throw new WebApplicationException("Warehouse not found: " + id, 404);
     }
-
     return toWarehouseResponse(warehouse);
   }
 
@@ -61,7 +62,9 @@ public class WarehouseResourceImpl implements WarehouseResource {
   @Transactional
   public void archiveAWarehouseUnitByID(String id) {
     LOGGER.infof("Archiving warehouse unit by ID: %s", id);
-    String code = requireNonBlank(id, "Warehouse id was not set.");
+    if (StringUtils.isEmpty(id)) {
+      throw new IllegalArgumentException("Warehouse Id cannot be empty");
+    }
     Long warehouseId = Long.parseLong(id);
     var warehouse = warehouseRepository.findWarehouseById(warehouseId);
     if (warehouse == null || warehouse.archivedAt != null) {
@@ -75,21 +78,18 @@ public class WarehouseResourceImpl implements WarehouseResource {
   public Warehouse replaceTheCurrentActiveWarehouse(
           String businessUnitCode, @NotNull Warehouse data) {
     LOGGER.infof("Replacing warehouse : %s", businessUnitCode);
-    String code = requireNonBlank(businessUnitCode, "Warehouse businessUnitCode was not set.");
-
+    if (StringUtils.isEmpty(businessUnitCode)) {
+      throw new IllegalArgumentException("Warehouse businessUnitCode cannot be empty");
+    }
     com.fulfilment.application.monolith.warehouses.domain.models.Warehouse domain = toDomainWarehouse(data);
-
     // enforce path param as the identifier to replace
-    domain.businessUnitCode = code;
-
+    domain.businessUnitCode = businessUnitCode;
     replaceWarehouseOperation.replace(domain);
-
     // return updated state from DB (source of truth)
     var updated = warehouseRepository.findByBusinessUnitCode(domain.businessUnitCode);
     if (updated == null || updated.archivedAt != null) {
       throw new WebApplicationException("Warehouse not found after replacement.", 500);
     }
-
     return toWarehouseResponse(updated);
   }
 
@@ -109,31 +109,12 @@ public class WarehouseResourceImpl implements WarehouseResource {
     if (data == null) {
       throw new WebApplicationException("Request body was not set.", 422);
     }
-
     var w = new com.fulfilment.application.monolith.warehouses.domain.models.Warehouse();
     w.businessUnitCode = data.getBusinessUnitCode();
     w.location = data.getLocation();
     w.capacity = data.getCapacity();
     w.stock = data.getStock();
     return w;
-  }
-
-  private String requireNonBlank(String value, String message) {
-    if (value == null || value.isBlank()) {
-      throw new WebApplicationException(message, 422);
-    }
-    return value.trim();
-  }
-
-  private Long requireNonBlankLong(String value, String message) {
-    if (value == null || value.isBlank()) {
-      throw new WebApplicationException(message, 422);
-    }
-    try {
-      return Long.parseLong(value.trim());
-    } catch (NumberFormatException e) {
-      throw new WebApplicationException("Invalid warehouse ID format: " + value, 422);
-    }
   }
 
 }

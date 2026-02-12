@@ -16,10 +16,7 @@ Yes, I would refactor the database access layer for consistency and maintainabil
 - Standardize on the clean architecture pattern used in warehouses for all modules
 - Create consistent domain models separate from database entities
 - Implement repository interfaces with clear domain operations
-- Use mapper methods between domain and database entities
-- This provides better testability, separation of concerns, and maintainability
 
-The warehouse approach is the most robust as it separates business logic from persistence concerns and makes the codebase more modular and easier to test.
 ```
 ----
 2. When it comes to API spec and endpoints handlers, we have an Open API yaml file for the `Warehouse` API from which we generate code, but for the other endpoints - `Product` and `Store` - we just coded directly everything. What would be your thoughts about what are the pros and cons of each approach and what would be your choice?
@@ -32,16 +29,13 @@ The warehouse approach is the most robust as it separates business logic from pe
 - Contract-first development ensures API consistency
 - Automatic documentation generation
 - Type safety and reduced boilerplate
-- Easy client SDK generation
 - Standardized error handling and validation
 - Better team collaboration with clear API contracts
 
 *Cons:*
 - Learning curve for OpenAPI specification
-- Less flexibility for dynamic endpoints
 - Generated code can be verbose
 - Additional build complexity
-- Potential over-engineering for simple APIs
 
 **Direct Coding (Product/Store approach):**
 
@@ -80,28 +74,15 @@ The warehouse approach is the most robust as it separates business logic from pe
    - External gateway integrations
    - Current REST-assured tests are good foundation
 
-3. **Contract Tests (Medium-High Priority):**
-   - OpenAPI specification compliance
-   - Request/response validation
-   - Error handling scenarios
-
-4. **End-to-End Tests (Lower Priority):**
-   - Critical user journeys only
-   - Cross-module workflows (product ? warehouse ? store)
-
 **Implementation Strategy:**
 - Start with 80% unit test coverage for domain logic
 - Add integration tests for all API endpoints
-- Implement contract tests for OpenAPI compliance
-- Use testcontainers for consistent database testing
 - Set up CI/CD with coverage thresholds (minimum 70% unit, 60% integration)
 
 **Maintaining Effectiveness:**
 - Automate coverage reporting in CI/CD
 - Require tests for all new features
 - Regular test maintenance sprints
-- Use mutation testing to validate test quality
-- Monitor test execution times and optimize slow tests
 
 Focus on the warehouse module's testing approach as the template - it has good separation of concerns making it highly testable.
 ```
