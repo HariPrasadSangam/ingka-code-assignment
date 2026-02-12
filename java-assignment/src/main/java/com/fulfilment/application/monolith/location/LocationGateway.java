@@ -2,10 +2,18 @@ package com.fulfilment.application.monolith.location;
 
 import com.fulfilment.application.monolith.warehouses.domain.models.Location;
 import com.fulfilment.application.monolith.warehouses.domain.ports.LocationResolver;
+import jakarta.enterprise.context.ApplicationScoped;
+import org.apache.commons.lang3.StringUtils;
+import org.jboss.logging.Logger;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+@ApplicationScoped
 public class LocationGateway implements LocationResolver {
+
+  private static final Logger LOGGER = Logger.getLogger(LocationGateway.class);
 
   private static final List<Location> locations = new ArrayList<>();
 
@@ -22,7 +30,21 @@ public class LocationGateway implements LocationResolver {
 
   @Override
   public Location resolveByIdentifier(String identifier) {
-    // TODO implement this method
-    throw new UnsupportedOperationException("Unimplemented method 'resolveByIdentifier'");
+    LOGGER.debugf("Resolving location for the identifier: %s", identifier);
+    if (StringUtils.isEmpty(identifier)) {
+      throw new IllegalArgumentException("Identifier cannot be empty");
+    }
+
+    Optional<Location> location = locations.stream()
+        .filter(loc -> loc.identification.equals(identifier))
+        .findFirst();
+    
+    if (location.isPresent()) {
+        return location.get();
+    }
+    else {
+        LOGGER.warnf("Location not found for the identifier: %s", identifier);
+        return null;
+    }
   }
 }

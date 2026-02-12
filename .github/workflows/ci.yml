@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./java-assignment
+
+    services:
+      postgres:
+        image: postgres:13.3
+        env:
+          POSTGRES_DB: quarkus_test
+          POSTGRES_USER: ${{ secrets.CI_DB_USERNAME }}
+          POSTGRES_PASSWORD: ${{ secrets.CI_DB_PASSWORD }}
+        ports:
+          - 15432:5432
+        options: >-
+          --health-cmd="sh -c 'pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\"'"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      # permissions
+      - name: Grant execute permission for mvnw
+        run: chmod +x mvnw
+
+      - name: Check required secrets
+        run: |
+          if [ -z "${{ secrets.CI_DB_USERNAME }}" ] || [ -z "${{ secrets.CI_DB_PASSWORD }}" ]; then
+            echo "Missing required secrets: CI_DB_USERNAME and/or CI_DB_PASSWORD. Please add them in repository Settings → Secrets → Actions."
+            exit 1
+          fi
+
+      - name: Build and run tests
+        run: ./mvnw -B clean verify
+        env:
+          QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://localhost:15432/quarkus_test
+          QUARKUS_DATASOURCE_USERNAME: ${{ secrets.CI_DB_USERNAME }}
+          QUARKUS_DATASOURCE_PASSWORD: ${{ secrets.CI_DB_PASSWORD }}
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: java-assignment/target/surefire-reports/
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: |
+            java-assignment/target/jacoco-report/
+            java-assignment/target/jacoco.exec
+            java-assignment/target/jacoco-quarkus.exec
+
+      - name: Package application
+        run: ./mvnw -B package -DskipTests
+
+      - name: Upload application JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: application
+          path: java-assignment/target/*.jar
