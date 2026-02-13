@@ -26,10 +26,9 @@ class WarehouseFullfilmentRepositoryTest {
 
     @Test
     @Transactional
-    void create_should_persist_entity() {
+    void testCreateWarehouseFullfilment() {
         WarehouseFullfilment wf =
-                new WarehouseFullfilment("MWH-001", "STORE-1",
-                        "PRODUCT-1", ZonedDateTime.now());
+                new WarehouseFullfilment(1L, 1L, 1L, ZonedDateTime.now());
 
         repository.create(wf);
 
@@ -39,11 +38,11 @@ class WarehouseFullfilmentRepositoryTest {
 
     @Test
     @Transactional
-    void findNumberofWarehousesForAProductPerStore_should_return_correct_count() {
+    void testNumberOfWarehousesForAProductPerStore() {
         WarehouseFullfilment wf1 =
-                new WarehouseFullfilment("MWH-001", "STORE-1", "PRODUCT-1",ZonedDateTime.now());
+                new WarehouseFullfilment(1L, 1L, 1L, ZonedDateTime.now());
         WarehouseFullfilment wf2 =
-                new WarehouseFullfilment("MWH-002", "STORE-1", "PRODUCT-1", ZonedDateTime.now());
+                new WarehouseFullfilment(1L, 1L, 2L, ZonedDateTime.now());
 
         repository.create(wf1);
         repository.create(wf2);
@@ -56,13 +55,13 @@ class WarehouseFullfilmentRepositoryTest {
 
     @Test
     @Transactional
-    void findNumberofWarehousesPerStore_should_return_distinct_warehouse_count() {
+    void testNumberofWarehousesPerStore() {
         WarehouseFullfilment wf1 =
-                new WarehouseFullfilment("MWH-001", "STORE-1", "PRODUCT-1",ZonedDateTime.now());
+                new WarehouseFullfilment(1L, 1L, 1L, ZonedDateTime.now());
         WarehouseFullfilment wf2 =
-                new WarehouseFullfilment("MWH-002", "STORE-1", "PRODUCT-2", ZonedDateTime.now());
+                new WarehouseFullfilment(1L, 2L, 2L, ZonedDateTime.now());
         WarehouseFullfilment wf3 =
-                new WarehouseFullfilment("MWH-001", "STORE-1", "PRODUCT-3", ZonedDateTime.now());
+                new WarehouseFullfilment(1L, 3L, 1L, ZonedDateTime.now());
 
         repository.create(wf1);
         repository.create(wf2);
@@ -76,13 +75,13 @@ class WarehouseFullfilmentRepositoryTest {
 
     @Test
     @Transactional
-    void findNumberofWarehousesPerproduct_should_return_distinct_product_count() {
+    void testNumberofWarehousesPerProduct() {
         WarehouseFullfilment wf1 =
-                new WarehouseFullfilment("MWH-001", "STORE-1", "PRODUCT-1", ZonedDateTime.now());
+                new WarehouseFullfilment(1L, 1L, 1L, ZonedDateTime.now());
         WarehouseFullfilment wf2 =
-                new WarehouseFullfilment("MWH-001", "STORE-2", "PRODUCT-2", ZonedDateTime.now());
+                new WarehouseFullfilment(2L, 2L, 1L, ZonedDateTime.now());
         WarehouseFullfilment wf3 =
-                new WarehouseFullfilment("MWH-001", "STORE-3", "PRODUCT-2", ZonedDateTime.now());
+                new WarehouseFullfilment(3L, 2L, 1L, ZonedDateTime.now());
 
         repository.create(wf1);
         repository.create(wf2);

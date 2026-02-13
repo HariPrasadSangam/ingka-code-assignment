@@ -14,9 +14,9 @@ public class DbWarehouseFullFilment {
     @GeneratedValue
     private Long id;
 
-    private String store;
-    private String product;
-    private String warehouse;
+    private Long storeId;
+    private Long productId;
+    private Long warehouseId;
     private LocalDateTime createdAt;
 
     public DbWarehouseFullFilment(){}
@@ -30,32 +30,32 @@ public class DbWarehouseFullFilment {
         this.id = id;
     }
 
-    public void setStore(String store) {
-        this.store = store;
+    public void setStoreId(Long storeId) {
+        this.storeId = storeId;
     }
 
-    public void setProduct(String product) {
-        this.product = product;
+    public void setProductId(Long productId) {
+        this.productId = productId;
     }
 
-    public void setWarehouse(String warehouse) {
-        this.warehouse = warehouse;
+    public void setWarehouseId(Long warehouseId) {
+        this.warehouseId = warehouseId;
     }
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public String getStore() {
-        return store;
+    public Long getStoreId() {
+        return storeId;
     }
 
-    public String getProduct() {
-        return product;
+    public Long getProductId() {
+        return productId;
     }
 
-    public String getWarehouse() {
-        return warehouse;
+    public Long getWarehouseId() {
+        return warehouseId;
     }
 
     public LocalDateTime getCreatedAt() {

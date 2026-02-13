@@ -20,9 +20,9 @@ public class WarehouseFullfilmentEndpointIT {
     public void testAssignMultipleWarehousesToProducts() {
         // First assignment
         WarehouseFullfilment firstAssignment = new WarehouseFullfilment();
-        firstAssignment.setBusinessUnitCode("MWH.001");
-        firstAssignment.setStoreName("AMSTERDAM-001");
-        firstAssignment.setProductName("DESKTOP-005");
+        firstAssignment.setWarehouseId(1L);
+        firstAssignment.setStoreId(1L);
+        firstAssignment.setProductId(1L);
         firstAssignment.setCreatedAt(ZonedDateTime.now());
 
         given()
@@ -31,13 +31,13 @@ public class WarehouseFullfilmentEndpointIT {
                 .when().post(path)
                 .then()
                 .statusCode(200)
-                .body("businessUnitCode", is("MWH.001"));
+                .body("warehouseId", is(1));
 
         // Second assignment
         WarehouseFullfilment secondAssignment = new WarehouseFullfilment();
-        secondAssignment.setBusinessUnitCode("MWH.012");
-        secondAssignment.setStoreName("ZWOLLE-001");
-        secondAssignment.setProductName("TABLET-006");
+        secondAssignment.setWarehouseId(2L);
+        secondAssignment.setStoreId(2L);
+        secondAssignment.setProductId(2L);
         secondAssignment.setCreatedAt(ZonedDateTime.now());
 
         given()
@@ -46,15 +46,15 @@ public class WarehouseFullfilmentEndpointIT {
                 .when().post(path)
                 .then()
                 .statusCode(200)
-                .body("businessUnitCode", is("MWH.012"));
+                .body("warehouseId", is(2));
     }
 
     @Test
     public void testAssignWarehouseToProductWithInvalidData() {
         WarehouseFullfilment warehouseFullfilment = new WarehouseFullfilment();
-        // Missing required businessUnitCode
-        warehouseFullfilment.setStoreName("INVALID-STORE");
-        warehouseFullfilment.setProductName("INVALID-PRODUCT");
+        // Missing required warehouseId
+        warehouseFullfilment.setStoreId(3L);
+        warehouseFullfilment.setProductId(3L);
         warehouseFullfilment.setCreatedAt(ZonedDateTime.now());
 
         given()

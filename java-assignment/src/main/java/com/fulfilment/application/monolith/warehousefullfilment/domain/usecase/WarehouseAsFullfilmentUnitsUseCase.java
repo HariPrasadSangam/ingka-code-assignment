@@ -21,9 +21,9 @@ public class WarehouseAsFullfilmentUnitsUseCase implements
 
     @Override
     public void createWarehouseFullfilment(WarehouseFullfilment warehouseFullfilment) {
-        LOGGER.infof("Creating Warehouse Fullfilment Store: %s", warehouseFullfilment.getBusinessUnitCode());
+        LOGGER.infof("Creating Warehouse Fullfilment Store: %s", warehouseFullfilment.getWarehouseId());
         warehouseFullfilmentValidator.validate(warehouseFullfilment);
         warehouseFullfilmentStore.create(warehouseFullfilment);
-        LOGGER.infof("Created Warehouse Fullfilment Store: %s", warehouseFullfilment.getBusinessUnitCode());
+        LOGGER.infof("Created Warehouse Fullfilment Store: %s", warehouseFullfilment.getWarehouseId());
     }
 }

@@ -3,47 +3,47 @@ package com.fulfilment.application.monolith.warehousefullfilment.domain.model;
 import java.time.ZonedDateTime;
 
 public class WarehouseFullfilment {
-    private String businessUnitCode;
-    private String storeName;
-    private String productName;
+    private Long storeId;
+    private Long productId;
+    private Long warehouseId;
     private ZonedDateTime createdAt;
 
     public WarehouseFullfilment() {}
 
-    public WarehouseFullfilment(String businessUnitCode, String storeName, String productName, ZonedDateTime createdAt) {
-        this.businessUnitCode = businessUnitCode;
-        this.storeName = storeName;
-        this.productName = productName;
+    public WarehouseFullfilment(Long storeId, Long productId, Long warehouseId, ZonedDateTime createdAt) {
+        this.storeId = storeId;
+        this.productId = productId;
+        this.warehouseId = warehouseId;
         this.createdAt = createdAt;
     }
 
 
-    public void setBusinessUnitCode(String businessUnitCode) {
-        this.businessUnitCode = businessUnitCode;
+    public void setStoreId(Long storeId) {
+        this.storeId = storeId;
     }
 
-    public void setStoreName(String storeName) {
-        this.storeName = storeName;
+    public void setProductId(Long productId) {
+        this.productId = productId;
     }
 
-    public void setProductName(String productName) {
-        this.productName = productName;
+    public void setWarehouseId(Long warehouseId) {
+        this.warehouseId = warehouseId;
     }
 
     public void setCreatedAt(ZonedDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public String getBusinessUnitCode() {
-        return businessUnitCode;
+    public Long getStoreId() {
+        return storeId;
     }
 
-    public String getStoreName() {
-        return storeName;
+    public Long getProductId() {
+        return productId;
     }
 
-    public String getProductName() {
-        return productName;
+    public Long getWarehouseId() {
+        return warehouseId;
     }
 
     public ZonedDateTime getCreatedAt() {

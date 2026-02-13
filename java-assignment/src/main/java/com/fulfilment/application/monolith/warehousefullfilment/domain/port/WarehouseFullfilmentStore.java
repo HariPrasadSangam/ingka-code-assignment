@@ -4,6 +4,7 @@ import com.fulfilment.application.monolith.warehousefullfilment.domain.model.War
 
 public interface WarehouseFullfilmentStore {
     void create(WarehouseFullfilment warehouseFullfilment);
+    boolean existsAssignment(WarehouseFullfilment warehouseFullfilment);
     long findNumberofWarehousesForAProductPerStore(WarehouseFullfilment warehouseFullfilment);
     long findNumberofWarehousesPerStore(WarehouseFullfilment warehouseFullfilment);
     long findNumberofWarehousesPerproduct(WarehouseFullfilment warehouseFullfilment);

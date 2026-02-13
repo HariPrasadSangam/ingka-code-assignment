@@ -6,6 +6,7 @@ import com.fulfilment.application.monolith.warehouses.adapters.database.DbWareho
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.persistence.EntityManager;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -16,7 +17,7 @@ public class WarehouseFullfilmentRepository implements WarehouseFullfilmentStore
     @Override
     public void create(WarehouseFullfilment warehouseFullfilment) {
         warehouseFullfilment.setCreatedAt(getZonedDateTime());
-       persist(entityFromWarehouseFullFilment(warehouseFullfilment));
+        persist(entityFromWarehouseFullFilment(warehouseFullfilment));
     }
 
     @NonNull
@@ -24,41 +25,46 @@ public class WarehouseFullfilmentRepository implements WarehouseFullfilmentStore
         return LocalDateTime.now().atZone(ZoneOffset.UTC);
     }
 
+    public boolean existsAssignment(WarehouseFullfilment warehouseFullfilment) {
+        return count("storeId = ?1 and productId = ?2 and warehouseId = ?3", warehouseFullfilment.getStoreId(), warehouseFullfilment.getProductId(), warehouseFullfilment.getWarehouseId()) > 0;
+    }
+
     @Override
     public long findNumberofWarehousesForAProductPerStore(WarehouseFullfilment warehouseFullfilment) {
-        return  find(
-                "SELECT COUNT(wf) " +
+        return getEntityManager().createQuery(
+                "SELECT COUNT(DISTINCT wf.warehouseId) " +
                         "FROM DbWarehouseFullFilment wf " +
-                        "WHERE wf.product = ?1 AND wf.store =?2",
-                warehouseFullfilment.getProductName(), warehouseFullfilment.getStoreName()
-        ).project(Long.class).firstResult();
+                        "WHERE wf.productId = :productId AND wf.storeId = :storeId", Long.class)
+                .setParameter("productId", warehouseFullfilment.getProductId())
+                .setParameter("storeId", warehouseFullfilment.getStoreId())
+                .getSingleResult();
     }
 
     @Override
     public long findNumberofWarehousesPerStore(WarehouseFullfilment warehouseFullfilment) {
-        return  find(
-                "SELECT COUNT(DISTINCT wf.warehouse) " +
+        return getEntityManager().createQuery(
+                "SELECT COUNT(DISTINCT wf.warehouseId) " +
                         "FROM DbWarehouseFullFilment wf " +
-                        "WHERE wf.store = ?1",
-                warehouseFullfilment.getStoreName()
-        ).project(Long.class).firstResult();
+                        "WHERE wf.storeId = :storeId", Long.class)
+                .setParameter("storeId", warehouseFullfilment.getStoreId())
+                .getSingleResult();
     }
 
     @Override
     public long findNumberofWarehousesPerproduct(WarehouseFullfilment warehouseFullfilment) {
-        return   find(
-                "SELECT COUNT(DISTINCT wf.product) " +
+        return getEntityManager().createQuery(
+                "SELECT COUNT(DISTINCT wf.productId) " +
                         "FROM DbWarehouseFullFilment wf " +
-                        "WHERE wf.warehouse = ?1",
-                warehouseFullfilment.getBusinessUnitCode()
-        ).project(Long.class).firstResult();
+                        "WHERE wf.warehouseId = :warehouseId", Long.class)
+                .setParameter("warehouseId", warehouseFullfilment.getWarehouseId())
+                .getSingleResult();
     }
 
     private DbWarehouseFullFilment entityFromWarehouseFullFilment(WarehouseFullfilment warehouseFullfilment) {
         DbWarehouseFullFilment entity = new DbWarehouseFullFilment();
-        entity.setWarehouse(warehouseFullfilment.getBusinessUnitCode());
-        entity.setStore(warehouseFullfilment.getStoreName());
-        entity.setProduct(warehouseFullfilment.getProductName());
+        entity.setWarehouseId(warehouseFullfilment.getWarehouseId());
+        entity.setStoreId(warehouseFullfilment.getStoreId());
+        entity.setProductId(warehouseFullfilment.getProductId());
         entity.setCreatedAt(getLocalDate(warehouseFullfilment.getCreatedAt()));
         return entity;
     }

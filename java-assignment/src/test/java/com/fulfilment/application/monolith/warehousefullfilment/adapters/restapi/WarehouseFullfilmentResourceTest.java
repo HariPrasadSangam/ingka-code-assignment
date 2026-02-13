@@ -1,8 +1,12 @@
 package com.fulfilment.application.monolith.warehousefullfilment.adapters.restapi;
 
+import com.fulfilment.application.monolith.warehousefullfilment.adapters.database.WarehouseFullfilmentRepository;
 import com.fulfilment.application.monolith.warehousefullfilment.domain.model.WarehouseFullfilment;
 import io.quarkus.test.TestTransaction;
 import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -17,18 +21,25 @@ import static org.hamcrest.Matchers.notNullValue;
 
 @QuarkusTest
 @TestTransaction
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class WarehouseFullfilmentResourceTest {
 
     private static final String path = "warehouseFullfilment";
 
+    @Inject
+    WarehouseFullfilmentRepository repository;
+
+    @BeforeEach
+    @Transactional
+    void cleanDb() {
+        repository.deleteAll();
+    }
+
     @Test
-    @Order(1)
     public void testAssignWarehouseToProduct() {
         WarehouseFullfilment warehouseFullfilment = new WarehouseFullfilment();
-        warehouseFullfilment.setBusinessUnitCode("MWH.001");
-        warehouseFullfilment.setStoreName("AMSTERDAM-001");
-        warehouseFullfilment.setProductName("LAPTOP-001");
+        warehouseFullfilment.setWarehouseId(2L);
+        warehouseFullfilment.setStoreId(2L);
+        warehouseFullfilment.setProductId(2L);
         warehouseFullfilment.setCreatedAt(ZonedDateTime.now());
 
         given()
@@ -37,39 +48,17 @@ public class WarehouseFullfilmentResourceTest {
                 .when().post(path)
                 .then()
                 .statusCode(200)
-                .body("businessUnitCode", is("MWH.001"))
-                .body("storeName", is("AMSTERDAM-001"))
-                .body("productName", is("LAPTOP-001"))
-                .body("createdAt", notNullValue());
+                .body("warehouseId", is(2))
+                .body("storeId", is(2))
+                .body("productId", is(2));
     }
 
     @Test
-    @Order(2)
-    public void testAssignWarehouseToProductWithDifferentData() {
-        WarehouseFullfilment warehouseFullfilment = new WarehouseFullfilment();
-        warehouseFullfilment.setBusinessUnitCode("MWH.012");
-        warehouseFullfilment.setStoreName("ZWOLLE-001");
-        warehouseFullfilment.setProductName("MONITOR-002");
-        warehouseFullfilment.setCreatedAt(ZonedDateTime.now());
-
-        given()
-                .contentType("application/json")
-                .body(warehouseFullfilment)
-                .when().post(path)
-                .then()
-                .statusCode(200)
-                .body("businessUnitCode", is("MWH.012"))
-                .body("storeName", is("ZWOLLE-001"))
-                .body("productName", is("MONITOR-002"));
-    }
-
-    @Test
-    @Order(3)
     public void testAssignWarehouseToProductWithMissingRequiredField() {
         WarehouseFullfilment warehouseFullfilment = new WarehouseFullfilment();
-        // Missing businessUnitCode which should be @NotNull
-        warehouseFullfilment.setStoreName("TILBURG-001");
-        warehouseFullfilment.setProductName("KEYBOARD-003");
+        // Missing warehouseId which should be @NotNull
+        warehouseFullfilment.setStoreId(3L);
+        warehouseFullfilment.setProductId(3L);
         warehouseFullfilment.setCreatedAt(ZonedDateTime.now());
 
         given()

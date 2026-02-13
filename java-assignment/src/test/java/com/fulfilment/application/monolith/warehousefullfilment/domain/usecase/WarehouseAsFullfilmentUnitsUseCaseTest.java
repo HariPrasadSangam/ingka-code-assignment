@@ -1,7 +1,11 @@
 package com.fulfilment.application.monolith.warehousefullfilment.domain.usecase;
 
+import com.fulfilment.application.monolith.products.Product;
+import com.fulfilment.application.monolith.products.ProductRepository;
 import com.fulfilment.application.monolith.warehousefullfilment.domain.model.WarehouseFullfilment;
 import com.fulfilment.application.monolith.warehousefullfilment.domain.port.WarehouseFullfilmentStore;
+import com.fulfilment.application.monolith.warehouses.adapters.database.WarehouseRepository;
+import com.fulfilment.application.monolith.warehouses.domain.models.Warehouse;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -19,6 +23,12 @@ import static org.mockito.Mockito.*;
 public class WarehouseAsFullfilmentUnitsUseCaseTest {
     @InjectMock
     WarehouseFullfilmentStore warehouseFullfilmentStore;
+    
+    @InjectMock
+    WarehouseRepository warehouseRepository;
+    
+    @InjectMock
+    ProductRepository productRepository;
 
     @Inject
     WarehouseAsFullfilmentUnitsUseCase warehouseAsFullfilmentUnitsUseCase;
@@ -27,7 +37,18 @@ public class WarehouseAsFullfilmentUnitsUseCaseTest {
 
     @BeforeEach
     void setUp() {
-        testWarehouseFullfilment = new WarehouseFullfilment("MWH-001", "STORE-1", "PRODUCT-1", ZonedDateTime.now());
+        testWarehouseFullfilment = new WarehouseFullfilment(1L, 1L, 1L, ZonedDateTime.now());
+        
+        // Mock the required entities to exist
+        Warehouse warehouse = new Warehouse();
+        warehouse.id = 1L;
+        warehouse.archivedAt = null;
+        when(warehouseRepository.findWarehouseById(1L)).thenReturn(warehouse);
+        
+        Product product = new Product();
+        product.id = 1L;
+        product.stock = 10;
+        when(productRepository.findById(1L)).thenReturn(product);
     }
 
     @Test
