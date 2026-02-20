@@ -61,7 +61,8 @@ public class WarehouseRepository implements WarehouseStore, PanacheRepository<Db
                     .firstResult();
 
     if (entity != null) {
-      this.delete(entity);
+      warehouse.archivedAt = LocalDateTime.now();
+      this.update(warehouse);
     }
   }
 

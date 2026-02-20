@@ -54,7 +54,13 @@ public class WarehouseValidator {
                         .mapToInt(wh -> wh.capacity)
                         .sum();
 
-        if (currentTotalCapacity + warehouse.capacity > location.maxCapacity) {
+        // For existing warehouses, only consider additional capacity (new - old)
+        // For new warehouses, consider full capacity
+        int capacityToCheck = existingWarehouse != null 
+                ? currentTotalCapacity + (warehouse.capacity - existingWarehouse.capacity)
+                : currentTotalCapacity + warehouse.capacity;
+
+        if (capacityToCheck > location.maxCapacity) {
             LOGGER.warnf("Maximum capacity reached for location: %s", warehouse.location);
             throw new IllegalStateException("Maximum capacity reached for this location");
         }
